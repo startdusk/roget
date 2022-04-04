@@ -1,4 +1,24 @@
+use std::collections::HashSet;
+
 pub mod algorithms;
+
+const DICTIONARY: &str = include_str!("../dictionary.txt");
+
+pub struct Wordle {
+    dictionary: HashSet<&'static str>,
+}
+
+impl Wordle {
+    pub fn new() -> Self {
+        Self {
+            dictionary: HashSet::from_iter(DICTIONARY.lines().map(|line| {
+                line.split_once(' ')
+                    .expect("every line is word + space + frequency")
+                    .1
+            })),
+        }
+    }
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Correctness {
@@ -109,6 +129,28 @@ mod tests {
         #[test]
         fn repeat_green() {
             assert_eq!(Correctness::compute("aabbb", "aaccc"), mask![C C W W W])
+        }
+
+        #[test]
+        fn repeat_yellow() {
+            assert_eq!(Correctness::compute("aabbb", "ccaac"), mask![W W M M W])
+        }
+
+        #[test]
+        fn repeat_some_green() {
+            assert_eq!(Correctness::compute("aabbb", "caacc"), mask![W C M W W])
+        }
+        #[test]
+        fn dremann_from_chat() {
+            assert_eq!(Correctness::compute("azzaz", "aaabb"), mask![C M W W W])
+        }
+        #[test]
+        fn itsapoque_from_chat() {
+            assert_eq!(Correctness::compute("baccc", "aaddd"), mask![W C W W W])
+        }
+        #[test]
+        fn ricoello_from_chat() {
+            assert_eq!(Correctness::compute("abcde", "aacde"), mask![C W C C C])
         }
     }
 }
