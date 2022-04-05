@@ -1,4 +1,4 @@
-use std::{collections::HashMap, hash::Hash};
+use std::collections::HashMap;
 
 use crate::{Guess, Guesser, DICTIONARY};
 
@@ -28,7 +28,7 @@ struct Candidate {
 }
 
 impl Guesser for Naive {
-    fn guess(&mut self, history: &[crate::Guess]) -> String {
+    fn guess(&mut self, history: &[Guess]) -> String {
         if let Some(last) = history.last() {
             self.remaining.retain(|word, _| last.matches(word));
         }

@@ -207,13 +207,30 @@ mod tests {
     mod guess_matcher {
         use crate::Guess;
 
+        macro_rules! check {
+            ($prev:literal + [$($mask:tt)+] allows $next:literal) => {
+                assert!(Guess {
+                    word: $prev.to_string(),
+                    mask: mask![$($mask )+]
+                }.matches($next));
+            };
+            ($prev:literal + [$($mask:tt)+] disallows $next:literal) => {
+                assert!(!Guess {
+                    word: $prev.to_string(),
+                    mask: mask![$($mask )+]
+                }.matches($next));
+            };
+        }
+
         #[test]
         fn matches() {
-            assert!(Guess {
-                word: "abcde".to_string(),
-                mask: mask![C C C C C]
-            }
-            .matches("abcde"))
+            check!("abcde" + [C C C C C] allows "abcde");
+            // assert!(Guess {
+            //     word: "abcde".to_string(),
+            //     mask: mask![C C C C C]
+            // }
+            // .matches("abcde"))
+            check!("abcdf" + [C C C C C] disallows "abcde");
         }
     }
     mod game {
