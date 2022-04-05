@@ -97,6 +97,7 @@ impl Guess {
     pub fn matches(&self, word: &str) -> bool {
         assert_eq!(self.word.len(), 5);
         assert_eq!(word.len(), 5);
+
         // First, check greens
         let mut used = [false; 5];
         for (i, ((g, &m), w)) in self
@@ -114,13 +115,13 @@ impl Guess {
                 }
             }
         }
-        for (_i, ((_g, &_m), w)) in self
-            .word
-            .chars()
-            .zip(&self.mask)
-            .zip(word.chars())
-            .enumerate()
-        {
+
+        for (i, (w, &m)) in word.chars().zip(&self.mask).enumerate() {
+            if m == Correctness::Correct {
+                // must be correct, or we'd have returned in the earlier loop
+                continue;
+            }
+
             let mut plausible = true;
             if self
                 .word
@@ -128,17 +129,19 @@ impl Guess {
                 .zip(&self.mask)
                 .enumerate()
                 .any(|(j, (g, m))| {
-                    if g == w {
+                    if g != w {
                         return false;
                     }
-
                     if used[j] {
                         return false;
                     }
-                    // We're looking at an `w` in `word`, and have found an `w` in the previous guess
+                    // We're looking at an `w` in `word`, and have found an `w` in the previous guess.
                     // The color of that previous `w` will tell us whether this `w` _might_ be okay.
                     match m {
-                        Correctness::Correct => {
+                        Correctness::Correct => unreachable!(
+                            "all correct guesses should have result in return or be used"
+                        ),
+                        Correctness::Misplaced if j == i => {
                             // `w` was yellow in this same position last time around, which means that
                             // `word` _cannot_ be the answer.
                             plausible = false;
@@ -150,7 +153,7 @@ impl Guess {
                         }
                         Correctness::Wrong => {
                             // TODO: early return
-                            plausible = true;
+                            plausible = false;
                             return false;
                         }
                     }
@@ -161,9 +164,10 @@ impl Guess {
             } else if !plausible {
                 return false;
             } else {
-                // We have no information about character `w`, so word might still match
+                // We have no information about character `w`, so word might still match.
             }
         }
+
         true
     }
 }
@@ -212,25 +216,47 @@ mod tests {
                 assert!(Guess {
                     word: $prev.to_string(),
                     mask: mask![$($mask )+]
-                }.matches($next));
+                }
+                .matches($next));
+                assert_eq!($crate::Correctness::compute($next, $prev), mask![$($mask )+]);
             };
             ($prev:literal + [$($mask:tt)+] disallows $next:literal) => {
                 assert!(!Guess {
                     word: $prev.to_string(),
                     mask: mask![$($mask )+]
-                }.matches($next));
-            };
+                }
+                .matches($next));
+                assert_ne!($crate::Correctness::compute($next, $prev), mask![$($mask )+]);
+            }
+        }
+        #[test]
+        fn from_jon() {
+            check!("abcde" + [C C C C C] allows "abcde");
+            check!("abcdf" + [C C C C C] disallows "abcde");
+            check!("abcde" + [W W W W W] allows "fghij");
+            check!("abcde" + [M M M M M] allows "eabcd");
+            check!("abcde" + [M M M M M] allows "eabcd");
+            check!("baaaa" + [W C M W W] allows "aaccc");
+            check!("baaaa" + [W C M W W] disallows "caacc");
         }
 
         #[test]
-        fn matches() {
-            check!("abcde" + [C C C C C] allows "abcde");
-            // assert!(Guess {
-            //     word: "abcde".to_string(),
-            //     mask: mask![C C C C C]
-            // }
-            // .matches("abcde"))
-            check!("abcdf" + [C C C C C] disallows "abcde");
+        fn from_crash() {
+            check!("tares" + [W M M W W] disallows "brink");
+        }
+
+        #[test]
+        fn from_yukosgiti() {
+            check!("aaaab" + [C C C W M] allows "aaabc");
+            check!("aaabc" + [C C C M W] allows "aaaab");
+        }
+
+        #[test]
+        fn from_chat() {
+            // flocular
+            check!("aaabb" + [C M W W W] disallows "accaa");
+            // ritoban
+            check!("abcde" + [W W W W W] disallows "bcdea");
         }
     }
     mod game {
