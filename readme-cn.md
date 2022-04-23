@@ -54,9 +54,12 @@ echo 0 | sudo tee /proc/sys/kernel/perf_event_paranoid
 
 上面的查看火焰图的方式，好像 wsl2 不支持，只能看到 roget，不能看到里面的程序的运行细节
 
-
-
-### hyperfine 测试
-```
+### hyperfine 测试(对比两个程序的运行速度)
 
 ```
+hyperfine -n naive './target/release/roget --implementation naive --max 1' -n allocs './target/release/roget --implementation allocs --max 1'
+```
+
+可以使用 编译好的程序(未优化前+优化后的对比)
+
+大概需要执行 3 分钟
