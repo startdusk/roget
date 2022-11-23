@@ -3,9 +3,13 @@ use roget::Wordle;
 const GAMES: &str = include_str!("../answers.txt");
 
 fn main() {
-    let wordle = Wordle::new();
+    let w = Wordle::new();
     for answer in GAMES.split_whitespace() {
         let guesser = roget::algorithms::Naive::new();
-        wordle.play(answer, guesser);
+        if let Some(score) = w.play(answer, guesser) {
+            println!("guessed '{}' score: {}", answer, score);
+        } else {
+            eprintln!("failed to guess!")
+        }
     }
 }
