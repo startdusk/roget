@@ -10,4 +10,4 @@ debug = true
 
 [dependencies]
 itertools = "0.10.3"
-clap = { version = "3.1.6", features = ["derive"] }
+clap = { version = "4", features = ["derive"] }

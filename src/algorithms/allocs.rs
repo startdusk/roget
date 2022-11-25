@@ -2,13 +2,13 @@ use std::{borrow::Cow, collections::HashMap};
 
 use crate::{Correctness, Guess, Guesser, DICTIONARY};
 
-pub struct Naive {
+pub struct Allocs {
     remaining: HashMap<&'static str, usize>,
 }
 
-impl Naive {
+impl Allocs {
     pub fn new() -> Self {
-        Naive {
+        Self {
             remaining: HashMap::from_iter(DICTIONARY.lines().map(|line| {
                 let (word, count) = line
                     .split_once(' ')
@@ -20,7 +20,7 @@ impl Naive {
     }
 }
 
-impl Default for Naive {
+impl Default for Allocs {
     fn default() -> Self {
         Self::new()
     }
@@ -32,7 +32,7 @@ struct Candidate {
     goodness: f64,
 }
 
-impl Guesser for Naive {
+impl Guesser for Allocs {
     fn guess(&mut self, history: &[crate::Guess]) -> String {
         if let Some(last) = history.last() {
             self.remaining.retain(|word, _| last.matches(word))
