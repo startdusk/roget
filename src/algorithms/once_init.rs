@@ -61,9 +61,9 @@ impl Guesser for OnceInit {
 
         let mut best: Option<Candidate> = None;
         for &(word, _) in &*self.remaining {
-            // TODO: how do we compute this?
-            // - SUM_i p_i * log_2(p_i)
             let mut sum = 0.0;
+            // TODO: don't consider correctness patterns that had no candidates in the previous
+            // iteration
             for pattern in Correctness::patterns() {
                 // considering a word where we _did_ guess `word` and got `pattern` as the
                 // correctness. now, compute what _then_ is left.
@@ -84,6 +84,7 @@ impl Guesser for OnceInit {
                 let p_of_this_pattern = in_pattern_total as f64 / remaining_count as f64;
                 sum += p_of_this_pattern * p_of_this_pattern.log2();
             }
+            // TODO: weight this by p_word
             let goodness = -sum;
             if let Some(c) = best {
                 // Is the one better?
