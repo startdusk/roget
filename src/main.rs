@@ -1,6 +1,6 @@
 use clap::{command, Parser, ValueEnum};
 use roget::{
-    algorithms::{Allocs, Naive, Vecremain},
+    algorithms::{Allocs, Naive, OnceInit, Vecremain},
     Guesser, Wordle,
 };
 
@@ -21,6 +21,7 @@ pub(crate) enum Implementation {
     Naive,
     Allocs,
     Vecremain,
+    OnceInit,
 }
 
 fn main() {
@@ -29,6 +30,7 @@ fn main() {
         Implementation::Naive => play(Naive::new, args.max),
         Implementation::Allocs => play(Allocs::new, args.max),
         Implementation::Vecremain => play(Vecremain::new, args.max),
+        Implementation::OnceInit => play(OnceInit::new, args.max),
     }
 }
 

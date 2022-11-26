@@ -11,3 +11,4 @@ debug = true
 [dependencies]
 itertools = "0.10.3"
 clap = { version = "4", features = ["derive"] }
+once_cell = "1"

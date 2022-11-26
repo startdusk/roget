@@ -18,11 +18,12 @@ roget/r: fmt
 roget/pid:
 	@pgrep -af roget
 
-.PHONY: roget/hyperfine3
-roget/hyperfine3:
+.PHONY: roget/hyperfine4
+roget/hyperfine4:
 	@cargo build --release
-	@hyperfine \
-		-n naive './target/release/roget --implementation naive --max 1' \
-		-n allocs './target/release/roget --implementation allocs --max 1' \
-		-n vecremain './target/release/roget --implementation vecremain --max 1' \
+	@hyperfine -m 5 \
+		-n naive './target/release/roget --implementation naive --max 7' \
+		-n allocs './target/release/roget --implementation allocs --max 7' \
+		-n vecremain './target/release/roget --implementation vecremain --max 7' \
+		-n once_init './target/release/roget --implementation once-init --max 7'
 		
