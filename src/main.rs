@@ -1,6 +1,6 @@
 use clap::{command, Parser, ValueEnum};
 use roget::{
-    algorithms::{Allocs, Naive},
+    algorithms::{Allocs, Naive, Vecremain},
     Guesser, Wordle,
 };
 
@@ -20,6 +20,7 @@ struct Args {
 pub(crate) enum Implementation {
     Naive,
     Allocs,
+    Vecremain,
 }
 
 fn main() {
@@ -27,6 +28,7 @@ fn main() {
     match args.implementation {
         Implementation::Naive => play(Naive::new, args.max),
         Implementation::Allocs => play(Allocs::new, args.max),
+        Implementation::Vecremain => play(Vecremain::new, args.max),
     }
 }
 
